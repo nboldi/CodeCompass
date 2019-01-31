@@ -2,6 +2,7 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string/join.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 
 #include <clang/Frontend/CompilerInstance.h>
 #include <clang/Frontend/FrontendAction.h>
@@ -71,39 +72,25 @@ bool HaskellParser::parseByJson(
   for (const auto& command : compileCommands)
   {
 	  std::vector<std::string> compComm = command.CommandLine;
-	  compComm.push_back("-fforce-recomp");
-	  compComm.push_back("-fplugin");
-	  compComm.push_back("Development.CodeCompass.Parser.Plugin");
-	  compComm.push_back("-fplugin-opt");
-	  compComm.push_back("Development.CodeCompass.Parser.Plugin:" + dbConnStr + "");
-	  std::string cm = boost::algorithm::join(compComm, std::string(" "));
-	  LOG(info) << "Performing " << cm << " in " << command.Directory;
-	  
 	  std::string program = compComm[0];
-	  char **ptrs = new char*[compComm.size() + 1];
-	  for (size_t i = 0; i < compComm.size(); ++i) {
-		  char* cstr = new char[compComm[i].length() + 1];
-		  std::strcpy(cstr, compComm[i].c_str());
-		  ptrs[i] = cstr;
+	  if (boost::algorithm::ends_with(program, std::string("ghc"))) {
+		  compComm.push_back("-fforce-recomp");
+		  compComm.push_back("-fplugin");
+		  compComm.push_back("Development.CodeCompass.Parser.Plugin");
+		  compComm.push_back("-fplugin-opt");
+		  compComm.push_back("Development.CodeCompass.Parser.Plugin:" + dbConnStr + "");
+		  std::string cm = boost::algorithm::join(compComm, std::string(" "));
+		  LOG(info) << "Performing " << cm << " in " << command.Directory;
+		  
+		  char **ptrs = new char*[compComm.size() + 1];
+		  for (size_t i = 0; i < compComm.size(); ++i) {
+			  char* cstr = new char[compComm[i].length() + 1];
+			  std::strcpy(cstr, compComm[i].c_str());
+			  ptrs[i] = cstr;
+		  }
+		  ptrs[compComm.size()] = NULL;
+		  execv(program.c_str(), ptrs);
 	  }
-	  ptrs[compComm.size()] = NULL;
-	  execv(program.c_str(), ptrs);
-    
-    
-    //bp::child c(command.Directory, command.CommandLine, std_out > output_stream, std_err > error_stream);
-    
-    //c.wait();
-    
-    //std::string line;
-    
-    //while (output_stream && std::getline(output_stream, line) && !line.empty()) {
-		//LOG(info) << line;
-	//}    
-    //while (error_stream && std::getline(error_stream, line) && !line.empty()) {
-		//LOG(error) << line;
-	//}
-
-	
   }
 
   return true;
