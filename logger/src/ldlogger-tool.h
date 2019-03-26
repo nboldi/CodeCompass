@@ -101,6 +101,22 @@ int loggerJavacParserCollectActions(
   const char* toolName_,
   const char* const argv_[],
   LoggerVector* actions_);
+  
+ /**
+ * Parser function for GHC like commands.
+ *
+ * @param prog_ the command path or the program name.
+ * @param toolName_ the tools name.
+ * @param argv_ the arguments of the program (including the first one)
+ * @param actions_ output vector for the build actions.
+ * @return zero on error, non zero on success.
+ */
+int loggerGhcParserCollectActions(
+  const char* prog_,
+  const char* toolName_,
+  const char* const argv_[],
+  LoggerVector* actions_);
+
 
 #endif /* CC_LOGGER_TOOL_H */
 

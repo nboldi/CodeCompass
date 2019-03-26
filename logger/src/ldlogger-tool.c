@@ -137,6 +137,9 @@ int loggerCollectActionsByProgName(
   else if (matchToProgramList("CC_LOGGER_JAVAC_LIKE", toolName))
   {
     return loggerJavacParserCollectActions(prog_, toolName, argv_, actions_);
+  } else if (matchToProgramList("CC_LOGGER_GHC_LIKE", toolName))
+  {
+    return loggerGhcParserCollectActions(prog_, toolName, argv_, actions_);
   }
 
   return 0;
